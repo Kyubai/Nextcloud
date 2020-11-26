@@ -1,0 +1,40 @@
+version: "3.3"
+services:
+        nextcloud:
+                build: ../nextcloud
+                image: nextcloud
+                volumes:
+                        - nextcloud_volume:/var/www/html
+                networks:
+                        nextcloud_network:
+                                aliases:
+                                        - nextcloud.container
+                                ipv4_address: 172.20.0.3
+                                #ports:
+                                #- "172.20.0.3:45654:80"
+                restart: "unless-stopped"
+        revproxy:
+                build: ../revproxy
+                image: revproxy
+                networks:
+                        nextcloud_network:
+                                ipv4_address: 172.20.0.2
+                ports:
+                        - "45654:45654"
+                depends_on:
+                        - nextcloud
+                restart: "unless-stopped"
+
+volumes:
+        nextcloud_volume:
+                driver: local
+                driver_opts:
+                        type: "none"
+                        o: "bind"
+                        device: "/data/nextcloud/volume"
+
+networks:
+        nextcloud_network:
+                ipam:
+                        config:
+                                - subnet: 172.20.0.2/29

@@ -1,0 +1,10 @@
+mkdir -p ../revproxy/files/ssl
+cp *.pem ../revproxy/files/ssl/
+
+# Get Domain from certificate and save for lates
+DN=$(openssl x509 -noout -subject -in cert.pem -nameopt multiline | grep commonName | sed -n 's|.*commonName.*= ||p')
+echo "Domain is: $DN"
+
+# Copy Nginx configuration and replace domain
+cp revproxy_default.conf ../revproxy/files/default.conf
+sed -i "s|example.com|$DN|g" ../revproxy/files/default.conf
